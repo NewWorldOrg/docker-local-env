@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  p-portainer:
+    image: portainer/portainer-ce
+    tty: true
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer:/data
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.services.p-potainer-docker.loadbalancer.server.port=9000"
+    tty: true
+  traefik:
+    image: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    tty: true
+    restart: always
+    labels:
+      - "traefik.http.routers.api.rule=Host(`t.localhost`)"
+      - "traefik.http.routers.api.service=api@internal"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+networks:
+  docker_default:
+    external:
+      name: docker_default
